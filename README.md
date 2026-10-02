@@ -31,6 +31,8 @@ flowchart LR
 | 3. Interpret | Copilot | A person attaches one batch file and runs the saved prompt in `prompts/copilot_prompt.md`. Copilot fills two columns: `direction` (up / down / flat) and a one-sentence `note`. It never calculates anything; all figures are already in the row. |
 | 4. Validate | Python | Matches answers back by `row_id` and checks: every row returned once, no unknown rows, `direction` agrees with the figures, the note is at most 30 words, and **the note contains no number that is not in that row**. Passing rows go to `final.csv`; the rest go to `review.csv` with reasons. |
 
+The reasoning behind these choices is in [docs/decisions.md](docs/decisions.md).
+
 There are no API costs: Python never calls an AI model, and the Copilot step
 runs inside an existing Copilot licence.
 
