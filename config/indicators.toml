@@ -1,0 +1,53 @@
+# Indicators to pull from the OECD Data Explorer API (SDMX).
+#
+# Each [[indicator]] is one Data Explorer query. To add your own:
+#   1. Open the table in https://data-explorer.oecd.org/
+#   2. Choose "Developer API" and copy the "Data query" URL.
+#   3. The part after /data/ and before the next "/" is the `dataflow`;
+#      the part after that (before "?") is the `key`.
+#   4. Replace the country list in the key with {countries} so the
+#      country selection below is applied to every indicator.
+#
+# Dataflow IDs and keys were taken from Data Explorer and DBnomics listings
+# on 2 October 2026. Re-check them if a fetch returns no rows.
+
+[settings]
+base_url = "https://sdmx.oecd.org/public/rest/data"
+countries = ["USA", "CAN", "JPN", "DEU", "FRA", "ITA", "ESP", "GBR"]
+start_period = "2023"
+# Seconds to wait between API calls. The OECD API is rate-limited; be polite.
+request_pause_seconds = 3
+# Rows per Copilot batch. Long tables in chat can come back truncated.
+batch_size = 40
+
+[[indicator]]
+id = "unemployment_rate"
+name = "Unemployment rate, 15+, seasonally adjusted"
+dataflow = "OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0"
+key = "{countries}..._Z.Y._T.Y_GE15..M"
+frequency = "M"
+unit = "% of labour force"
+# A change smaller than this (in the unit above) counts as "flat".
+flat_threshold = 0.1
+# A change at least this large is flagged for attention.
+large_move_threshold = 0.5
+
+[[indicator]]
+id = "cpi_inflation"
+name = "Consumer price inflation, all items, year-on-year"
+dataflow = "OECD.SDD.TPS,DSD_PRICES@DF_PRICES_ALL,1.0"
+key = "{countries}.M.N.CPI.PA._T.N.GY"
+frequency = "M"
+unit = "% change over 12 months"
+flat_threshold = 0.1
+large_move_threshold = 1.0
+
+[[indicator]]
+id = "gdp_growth"
+name = "Real GDP growth, quarter-on-quarter, seasonally adjusted"
+dataflow = "OECD.SDD.NAD,DSD_NAMAIN1@DF_QNA_EXPENDITURE_GROWTH_OECD,1.1"
+key = "Q.Y.{countries}.S1.S1.B1GQ._Z._Z._Z.PC.L.G1."
+frequency = "Q"
+unit = "% change over previous quarter"
+flat_threshold = 0.1
+large_move_threshold = 1.0
