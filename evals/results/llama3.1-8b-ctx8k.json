@@ -1,0 +1,12 @@
+{
+  "writer": "llama3.1:8b-ctx8k",
+  "rows": 9,
+  "accepted": 7,
+  "acceptance_rate": 0.778,
+  "to_review": 2,
+  "review_reasons": {
+    "direction '\u2026' does not match the figures": 1,
+    "direction '\u2026' is not one of ['down', 'flat', 'n/a', 'up']": 1,
+    "note is empty": 1
+  }
+}

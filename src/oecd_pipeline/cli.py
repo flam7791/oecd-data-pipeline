@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -95,7 +96,7 @@ def cmd_eval(args) -> int:
     reasons: dict[str, int] = {}
     for text in result.review.get("problems", []):
         for reason in str(text).split("; "):
-            key = reason.split(":")[0].split("(")[0].strip()
+            key = re.sub(r"'[^']*'", "'…'", reason.split(":")[0].split("(")[0], count=1).strip()
             reasons[key] = reasons.get(key, 0) + 1
     rate = r["accepted"] / r["rows_expected"] if r["rows_expected"] else 0.0
     report = {"writer": writer, "rows": r["rows_expected"], "accepted": r["accepted"],

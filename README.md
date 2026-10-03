@@ -110,6 +110,28 @@ Name the recordings folder after the model with `:` replaced by `-` (as above). 
 recorded run and CI replays it on every push, so a change to the prompt or the
 validator shows its effect on that model's answers.
 
+### Results (live run, October 2026)
+
+Llama 3.1 8B through Ollama, 8k context, temperature 0, on a laptop CPU (Intel Core i7-13620H,
+16 GB, integrated graphics). The recorded answers are in `evals/recordings/llama3.1-8b-ctx8k`
+and CI replays them on every push.
+
+| Writer | Accepted | Sent to review | Time |
+|---|---|---|---|
+| Rule-based stand-in (not a model) | 9/9 | 0 | instant |
+| Llama 3.1 8B, local | **7/9 (78%)** | 2 | about 1 minute per batch of 3 to 4 rows |
+
+What the run showed:
+
+- **The first result was 4/9, and the cause was the parser, not the model.** In one batch the
+  model ended every row with a stray comma, which shifted the columns and made four good answers
+  look missing. Fixed (`index_col=False`), covered by a test, and the same recorded answers now
+  give 7/9.
+- **The two rows left are model errors the validator caught.** Italy's inflation went from 1.7
+  to 1.6, which the rule calls `down`; the model wrote `flat`. In another row it left out the
+  `direction` column. Both went to review; nothing wrong was accepted.
+- **Nine rows is a small set.** It shows the method and the failure types, not a benchmark.
+
 ## Configuration
 
 Everything is in [`config/indicators.toml`](config/indicators.toml):

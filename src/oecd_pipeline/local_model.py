@@ -19,6 +19,7 @@ import hashlib
 import io
 import json
 import re
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -70,7 +71,13 @@ def extract_csv(reply: str) -> pd.DataFrame | None:
         if start == -1:
             continue
         try:
-            df = pd.read_csv(io.StringIO(text[start:]), dtype=str, keep_default_na=False)
+            # index_col=False: models often end rows with a stray comma, which would otherwise
+            # turn row_id into the index and shift every column (seen with Llama 3.1 8B).
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", pd.errors.ParserWarning)
+                df = pd.read_csv(
+                    io.StringIO(text[start:]), dtype=str, keep_default_na=False, index_col=False
+                )
         except Exception:  # noqa: BLE001 - any parse failure means "not usable"
             continue
         df.columns = [c.strip().lower() for c in df.columns]

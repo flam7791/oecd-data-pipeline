@@ -55,6 +55,8 @@ def test_one_prompt_for_both_routes():
         '```csv\nrow_id,direction,note\na:FRA,up,"Up."\n```',
         '```\nrow_id,direction,note\na:FRA,up,"Up."\n```',
         'Sure.\nrow_id,direction,note\na:FRA,up,"Up."\n',
+        # A trailing comma on every row, as Llama 3.1 8B wrote it in the first live run.
+        '```csv\nrow_id,direction,note\na:FRA,up,"Up.",\n```',
     ],
 )
 def test_csv_is_found_in_common_reply_shapes(reply):

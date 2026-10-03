@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 (2026-10)
+
+- First live run with Llama 3.1 8B through Ollama: 7/9 rows accepted, recorded and replayed in CI.
+- Parser accepts rows ending with a stray comma (found in the live run).
+- Review reasons are grouped without the model's text in the key.
+
 ## 0.2.0 (2026-10)
 
 - `interpret`: a local open-weight model (Ollama, vLLM, any OpenAI-compatible endpoint) writes the notes, with the same prompt and validator as the Copilot route. Replies can be recorded and replayed offline.

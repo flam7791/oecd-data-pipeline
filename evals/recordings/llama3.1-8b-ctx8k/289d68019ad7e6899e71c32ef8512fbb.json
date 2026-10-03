@@ -1,0 +1,9 @@
+{
+  "model": "llama3.1:8b-ctx8k",
+  "reply": "```csv\nrow_id,direction,note\ncpi_inflation:ITA,flat,\"In Italy, the consumer price inflation rate was 1.6% in 2025-08, down from 1.7% in 2025-07, but up from 1.1% in 2024-08.\",\ncpi_inflation:USA,up,\"In the United States, the consumer price inflation rate was 2.9% in 2025-08, up from 2.7% in 2025-07, and up from 2.5% in 2024-08.\",\ngdp_growth:FRA,up,\"In France, the real GDP growth rate was 0.3% in 2025-Q2, up from 0.1% in 2025-Q1, and the same as 0.3% in 2024-Q2.\",\ngdp_growth:ITA,up,\"In Italy, the real GDP growth rate was 0.3% in 2025-Q1, up from 0.2% in 2024-Q4, and the same as 0.3% in 2024-Q1.\",\n```",
+  "usage": {
+    "prompt_tokens": 656,
+    "completion_tokens": 250,
+    "total_tokens": 906
+  }
+}

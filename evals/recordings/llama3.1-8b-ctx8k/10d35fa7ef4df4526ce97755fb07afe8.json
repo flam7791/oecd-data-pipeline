@@ -1,0 +1,9 @@
+{
+  "model": "llama3.1:8b-ctx8k",
+  "reply": "```csv\nrow_id,direction,note\nunemployment_rate:FRA,flat,\"In France, the unemployment rate in August 2025 was 7.5% of the labour force, the same as in July and a year earlier.\"\nunemployment_rate:ITA,up,\"In Italy, the unemployment rate in August 2025 was 6.7% of the labour force, up from 6.0% in July and 6.4% a year earlier.\"\nunemployment_rate:USA,up,\"In the United States, the unemployment rate in August 2025 was 4.3% of the labour force, up from 4.2% in July and 4.2% a year earlier.\"\ncpi_inflation:FRA,down,\"In France, the consumer price inflation in August 2025 was 0.9% change over 12 months, down from 1.0% in July and 1.8% a year earlier.\"\n```",
+  "usage": {
+    "prompt_tokens": 649,
+    "completion_tokens": 204,
+    "total_tokens": 853
+  }
+}

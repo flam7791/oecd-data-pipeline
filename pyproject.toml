@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oecd-data-pipeline"
-version = "0.2.0"
+version = "0.2.1"
 description = "Fetch and clean OECD Data Explorer indicators with Python, add plain-English notes with Microsoft 365 Copilot, and check every note before accepting it."
 readme = "README.md"
 requires-python = ">=3.11"

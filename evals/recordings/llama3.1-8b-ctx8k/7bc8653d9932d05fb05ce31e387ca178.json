@@ -1,0 +1,9 @@
+{
+  "model": "llama3.1:8b-ctx8k",
+  "reply": "```csv\nrow_id,direction,note\ngdp_growth:USA,\"In the United States, the latest real GDP growth, quarter-on-quarter, seasonally adjusted was 0.8% in 2025-Q2, up from -0.1% in 2025-Q1 and 0.7% in 2024-Q2.\"\n```",
+  "usage": {
+    "prompt_tokens": 465,
+    "completion_tokens": 75,
+    "total_tokens": 540
+  }
+}
