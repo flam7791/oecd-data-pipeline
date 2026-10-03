@@ -1,5 +1,7 @@
 # oecd-data-pipeline
 
+[![CI](https://github.com/flam7791/oecd-data-pipeline/actions/workflows/tests.yml/badge.svg)](https://github.com/flam7791/oecd-data-pipeline/actions/workflows/tests.yml) [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE) ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
+
 A small, auditable pipeline that pulls headline indicators from the
 [OECD Data Explorer](https://data-explorer.oecd.org/) API, cleans them with
 Python, has **Microsoft 365 Copilot** write a plain-English note for each
