@@ -76,6 +76,40 @@ python -m oecd_pipeline standin
 python -m oecd_pipeline validate --responses data/standin_responses
 ```
 
+### With a local open-weight model instead of Copilot
+
+The same prompt, batches and validator work with a model running on your own machine through
+[Ollama](https://ollama.com) (or vLLM, llama.cpp, an LLM gateway: any OpenAI-compatible
+endpoint). Nothing leaves the machine, no licence is needed, and every batch runs unattended:
+
+```powershell
+ollama pull llama3.2:3b
+python -m oecd_pipeline interpret                    # writes data/local_responses/
+python -m oecd_pipeline validate --responses data/local_responses
+```
+
+Options: `--model qwen2.5:7b`, `--base-url http://gpu-server:8000/v1` (or the variables
+`OECD_PIPELINE_MODEL` and `OECD_PIPELINE_BASE_URL`). A reply without a usable CSV is kept as
+`batch_NN.unparsed.txt` and its rows go to review. A smaller model raises the review rate; the
+validator keeps what is accepted to the same standard.
+
+### Evaluation
+
+`evals/sample/` holds a fixed evaluation set (synthetic figures, like the test fixtures).
+`eval` runs a writer over it and reports the acceptance rate and the reasons for review:
+
+```powershell
+python -m oecd_pipeline eval                                   # rule-based stand-in: must be 100%
+python -m oecd_pipeline eval --writer model --model llama3.2:3b `
+    --recordings evals/recordings/llama3.2-3b --out evals/results/llama3.2-3b.json --min-accept 0
+python -m oecd_pipeline eval --writer model --model llama3.2:3b `
+    --recordings evals/recordings/llama3.2-3b --offline --min-accept 0   # replay, no model
+```
+
+Name the recordings folder after the model with `:` replaced by `-` (as above). Commit a
+recorded run and CI replays it on every push, so a change to the prompt or the
+validator shows its effect on that model's answers.
+
 ## Configuration
 
 Everything is in [`config/indicators.toml`](config/indicators.toml):
@@ -102,7 +136,7 @@ the prompt too; the validator always uses the value from the config.
 | `clean.csv` | Tidy table: one row per indicator, country and period, with source URL and download time |
 | `source_checks.csv` | Every cleaning rule that fired, with counts |
 | `summary.csv` | Latest figures, changes and rule-based flags (`large_move`, `lagging`, `no_previous`, `no_year_ago`) |
-| `batches/` | Files to give to Copilot, plus the prompt |
+| `batches/` | Files to give to Copilot (or the local model), plus the prompt |
 | `final.csv` | Summary rows with accepted `direction` and `note` |
 | `review.csv` | Rows that failed a check, with the reasons |
 | `validation_report.md` | Short report of the validation run |

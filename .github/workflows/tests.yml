@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,5 +18,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev]" pip-audit
       - run: pytest -q
+      - name: Evaluation set with the rule-based stand-in (must be 100%)
+        run: python -m oecd_pipeline eval
+      - name: Replay recorded local-model evaluations, if any
+        run: |
+          for dir in evals/recordings/*/; do
+            [ -d "$dir" ] || continue
+            name=$(basename "$dir")
+            echo "replaying $name"
+            python -m oecd_pipeline eval --writer model --model "${name/-/:}" \
+              --recordings "$dir" --offline --min-accept 0
+          done
+      - name: Dependency vulnerability scan
+        run: pip-audit .

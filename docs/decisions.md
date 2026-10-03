@@ -59,3 +59,12 @@ Explorer's Developer API panel. Adding one needs no code change.
 Tests use synthetic downloads (invented numbers, clearly labelled) so CI does
 not depend on the OECD API being reachable. The trade-off: the live API format
 is checked only when the pipeline is run for real.
+
+## 9. A local model can replace Copilot for the wording step
+
+`interpret` sends each batch, with the same saved prompt, to an open-weight model behind an
+OpenAI-compatible endpoint (Ollama by default) and writes its answers where the validator reads
+them. Copilot stays the route for people who already use it; the local route serves teams
+without licences, content that must stay on the machine, and unattended runs. Because the
+validator checks every row, the choice of model changes how many rows go to review, not what is
+accepted. The evaluation set in `evals/sample/` measures that rate per model.

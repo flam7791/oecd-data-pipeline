@@ -1,0 +1,5 @@
+row_id,country,indicator_name,unit,latest_period,latest_value,previous_period,previous_value,change_vs_previous,year_ago_period,year_ago_value,change_vs_year_ago,flags,direction,note
+cpi_inflation:ITA,Italy,"Consumer price inflation, all items, year-on-year",% change over 12 months,2025-08,1.6,2025-07,1.7,-0.1,2024-08,1.1,0.5,,,
+cpi_inflation:USA,United States,"Consumer price inflation, all items, year-on-year",% change over 12 months,2025-08,2.9,2025-07,2.7,0.2,2024-08,2.5,0.4,,,
+gdp_growth:FRA,France,"Real GDP growth, quarter-on-quarter, seasonally adjusted",% change over previous quarter,2025-Q2,0.3,2025-Q1,0.1,0.2,2024-Q2,0.3,0.0,,,
+gdp_growth:ITA,Italy,"Real GDP growth, quarter-on-quarter, seasonally adjusted",% change over previous quarter,2025-Q1,0.3,2024-Q4,0.2,0.1,2024-Q1,0.3,0.0,lagging,,

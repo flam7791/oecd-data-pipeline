@@ -2,15 +2,21 @@
 
   fetch      download every indicator from the OECD API into data/raw/
   process    clean the latest downloads, compute figures, write Copilot batches
-  validate   check Copilot's answers and write final.csv / review.csv
-  standin    fill the batches with rule-based answers (testing without Copilot)
+  interpret  have a local open-weight model (Ollama, vLLM, any OpenAI-compatible
+             endpoint) write the notes instead of Copilot; same prompt, same checks
+  validate   check the answers (Copilot or local) and write final.csv / review.csv
+  standin    fill the batches with rule-based answers (testing without a model)
+  eval       run the evaluation set through a writer and the validator; report and gate
   run        fetch + process
 """
 
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +26,7 @@ from .batches import write_batches
 from .clean import clean_sdmx_csv
 from .config import load_config
 from .fetch import fetch_all, latest_snapshot
+from .local_model import DEFAULT_BASE_URL, DEFAULT_MODEL, ChatModel, ReplayMiss, interpret_batches
 from .standin import answer_batches
 from .summarise import summarise_indicator
 from .validate import read_responses, validate, write_outputs
@@ -33,7 +40,76 @@ def _paths(args) -> dict[str, Path]:
         "batches": data / "out" / "batches",
         "responses": Path(args.responses) if getattr(args, "responses", None) else data / "copilot_responses",
         "standin": data / "standin_responses",
+        "local": data / "local_responses",
     }
+
+
+PROMPT = Path(__file__).resolve().parents[2] / "prompts" / "copilot_prompt.md"
+
+
+def _prompt_path(args) -> Path:
+    near_config = Path(args.config).resolve().parent.parent / "prompts" / "copilot_prompt.md"
+    return near_config if near_config.exists() else PROMPT
+
+
+def _model(args) -> ChatModel:
+    return ChatModel(
+        base_url=args.base_url,
+        model=args.model,
+        api_key=os.environ.get("OECD_PIPELINE_API_KEY", ""),
+        recordings=args.recordings,
+        offline=args.offline,
+    )
+
+
+def cmd_interpret(args) -> int:
+    p = _paths(args)
+    out = Path(args.responses) if args.responses else p["local"]
+    results = interpret_batches(p["batches"], out, _prompt_path(args), _model(args))
+    for r in results:
+        print(f"  {r.batch}: {r.status}, {r.returned}/{r.rows} rows returned {r.detail}".rstrip())
+    print(f"  Local model answers ({args.model}) written to {out}")
+    print(f"  Validate them with: python -m oecd_pipeline validate --responses {out}")
+    return 0 if all(r.status == "ok" for r in results) else 2
+
+
+def cmd_eval(args) -> int:
+    """Evaluation set -> writer (stand-in, live local model or replay) -> validator -> report."""
+    eval_dir = Path(args.set)
+    summary = pd.read_csv(eval_dir / "summary.csv", dtype={"row_id": str})
+    with tempfile.TemporaryDirectory() as tmp:
+        responses = Path(tmp) / "responses"
+        if args.writer == "standin":
+            answer_batches(eval_dir / "batches", responses)
+            writer = "rule-based stand-in (not a model)"
+        else:
+            try:
+                interpret_batches(eval_dir / "batches", responses, _prompt_path(args), _model(args))
+            except ReplayMiss as exc:
+                print(f"replay miss: {exc}", file=sys.stderr)
+                return 2
+            writer = args.model
+        answers, problems = read_responses(responses)
+        result = validate(summary, answers, problems)
+    r = result.report
+    reasons: dict[str, int] = {}
+    for text in result.review.get("problems", []):
+        for reason in str(text).split("; "):
+            key = reason.split(":")[0].split("(")[0].strip()
+            reasons[key] = reasons.get(key, 0) + 1
+    rate = r["accepted"] / r["rows_expected"] if r["rows_expected"] else 0.0
+    report = {"writer": writer, "rows": r["rows_expected"], "accepted": r["accepted"],
+              "acceptance_rate": round(rate, 3), "to_review": r["to_review"],
+              "review_reasons": reasons}
+    print(f"  writer: {writer}")
+    print(f"  accepted {r['accepted']}/{r['rows_expected']} ({rate:.0%}), "
+          f"to review {r['to_review']}")
+    for reason, n in sorted(reasons.items(), key=lambda x: -x[1]):
+        print(f"    {n} x {reason}")
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return 0 if rate >= args.min_accept else 1
 
 
 def cmd_fetch(args) -> int:
@@ -109,6 +185,27 @@ def main(argv=None) -> int:
     for name, fn in [("fetch", cmd_fetch), ("process", cmd_process), ("standin", cmd_standin),
                      ("run", cmd_run)]:
         sub.add_parser(name).set_defaults(func=fn)
+    def model_options(parser):
+        parser.add_argument("--base-url", default=os.environ.get(
+            "OECD_PIPELINE_BASE_URL", DEFAULT_BASE_URL), help="OpenAI-compatible endpoint")
+        parser.add_argument("--model", default=os.environ.get(
+            "OECD_PIPELINE_MODEL", DEFAULT_MODEL), help="model name, e.g. an Ollama tag")
+        parser.add_argument("--recordings", help="record replies here, or replay from here")
+        parser.add_argument("--offline", action="store_true", help="replay recordings only")
+
+    i = sub.add_parser("interpret", help="write the notes with a local open-weight model")
+    i.add_argument("--responses", help="output folder (default data/local_responses)")
+    model_options(i)
+    i.set_defaults(func=cmd_interpret)
+
+    e = sub.add_parser("eval", help="evaluate a writer on the evaluation set")
+    e.add_argument("--set", default="evals/sample", help="folder with summary.csv and batches/")
+    e.add_argument("--writer", choices=["standin", "model"], default="standin")
+    e.add_argument("--min-accept", type=float, default=1.0)
+    e.add_argument("--out", help="write the report as JSON")
+    model_options(e)
+    e.set_defaults(func=cmd_eval)
+
     v = sub.add_parser("validate")
     v.add_argument("--responses", help="folder with Copilot answers (default data/copilot_responses)")
     v.set_defaults(func=cmd_validate)
