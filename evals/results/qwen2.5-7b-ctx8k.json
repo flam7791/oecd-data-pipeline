@@ -1,0 +1,10 @@
+{
+  "writer": "qwen2.5:7b-ctx8k",
+  "rows": 9,
+  "accepted": 5,
+  "acceptance_rate": 0.556,
+  "to_review": 4,
+  "review_reasons": {
+    "direction '\u2026' does not match the figures": 4
+  }
+}

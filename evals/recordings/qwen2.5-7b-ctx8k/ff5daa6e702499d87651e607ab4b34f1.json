@@ -1,0 +1,9 @@
+{
+  "model": "qwen2.5:7b-ctx8k",
+  "reply": "```csv\nrow_id,direction,note\nunemployment_rate:FRA,\"flat\",\"Unemployment rate in France was 7.5% in 2025-08, unchanged from 2025-07 and 2024-08.\"\nunemployment_rate:ITA,\"down\",\"Unemployment rate in Italy decreased to 6.7% in 2025-08 from 6.0% in 2025-07, and 6.4% in 2024-08.\"\nunemployment_rate:USA,\"flat\",\"Unemployment rate in the United States was 4.3% in 2025-08, unchanged from 2025-07 and 2024-08.\"\ncpi_inflation:FRA,\"down\",\"Consumer price inflation in France was 0.9% in 2025-08, down from 1.0% in 2025-07 and 1.8% in 2024-08.\"\n```",
+  "usage": {
+    "prompt_tokens": 689,
+    "completion_tokens": 235,
+    "total_tokens": 924
+  }
+}

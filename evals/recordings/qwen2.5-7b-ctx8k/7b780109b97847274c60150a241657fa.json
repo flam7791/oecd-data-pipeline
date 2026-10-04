@@ -1,0 +1,9 @@
+{
+  "model": "qwen2.5:7b-ctx8k",
+  "reply": "```csv\nrow_id,direction,note\ngdp_growth:USA,\"up\",\"Real GDP growth in the USA was 0.8% in 2025-Q2, up from -0.1% in the previous quarter.\"\n```",
+  "usage": {
+    "prompt_tokens": 471,
+    "completion_tokens": 53,
+    "total_tokens": 524
+  }
+}
