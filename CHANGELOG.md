@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `AGENTS.md` (commands, layout, invariants) for coding agents; `CLAUDE.md` imports it.
+
 ## 0.2.1 (2026-10)
 
 - First live run with Llama 3.1 8B through Ollama: 7/9 rows accepted, recorded and replayed in CI.
