@@ -51,7 +51,7 @@ def write_batches(
     paths = []
     for n, start in enumerate(range(0, len(table), batch_size), start=1):
         path = out_dir / f"batch_{n:02d}.csv"
-        table.iloc[start:start + batch_size].to_csv(path, index=False)
+        table.iloc[start : start + batch_size].to_csv(path, index=False)
         paths.append(path)
 
     if prompt_path and Path(prompt_path).exists():

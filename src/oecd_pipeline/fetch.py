@@ -12,7 +12,7 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -83,7 +83,7 @@ def fetch_indicator(
     if not body.strip():
         raise FetchError(f"Empty response for {indicator.id} ({url})")
 
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
     csv_path = raw_dir / f"{indicator.id}_{stamp}.csv"
     meta_path = raw_dir / f"{indicator.id}_{stamp}.meta.json"

@@ -11,6 +11,7 @@ computes, the model writes, code checks.
 
 ```bash
 pip install -e ".[dev]"
+ruff check . && ruff format --check .
 pytest -q                                          # offline, synthetic fixtures
 python -m oecd_pipeline eval                       # evaluation with the rule-based stand-in: must be 100%
 for dir in evals/recordings/*/; do [ -d "$dir" ] && python -m oecd_pipeline eval --writer model --model "$(basename "$dir" | sed 's/-/:/')" --recordings "$dir" --offline --min-accept 0; done

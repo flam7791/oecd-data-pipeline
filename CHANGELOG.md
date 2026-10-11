@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Lint in CI, with the same ruff rules as the other repositories (`ruff check`, `ruff format
+  --check`): imports sorted, unused imports removed, `datetime.UTC`, explicit `zip(strict=...)`,
+  long lines wrapped. No behaviour change: tests, the stand-in evaluation and both recorded
+  model runs give the same results.
 - `AGENTS.md` (commands, layout, invariants) for coding agents; `CLAUDE.md` imports it.
 
 ## 0.2.1 (2026-10)

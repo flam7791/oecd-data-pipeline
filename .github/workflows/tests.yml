@@ -19,6 +19,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]" pip-audit
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
       - run: pytest -q
       - name: Evaluation set with the rule-based stand-in (must be 100%)
         run: python -m oecd_pipeline eval

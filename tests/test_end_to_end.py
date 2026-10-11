@@ -1,10 +1,9 @@
 """Whole pipeline, offline: synthetic downloads -> batches -> stand-in answers -> checks."""
 
 import pandas as pd
+from conftest import FIXTURES
 
 from oecd_pipeline.cli import main
-
-from conftest import FIXTURES
 
 
 def test_offline_run(raw_dir, capsys):
@@ -13,9 +12,9 @@ def test_offline_run(raw_dir, capsys):
 
     assert main(args + ["process"]) == 0
     summary = pd.read_csv(data / "out" / "summary.csv")
-    assert len(summary) == 9                                   # 3 indicators x 3 countries
+    assert len(summary) == 9  # 3 indicators x 3 countries
     batches = sorted((data / "out" / "batches").glob("batch_*.csv"))
-    assert len(batches) == 3                                   # batch_size = 4 in the test config
+    assert len(batches) == 3  # batch_size = 4 in the test config
     checks = pd.read_csv(data / "out" / "source_checks.csv")
     assert {"non_numeric_value", "unexpected_country", "duplicate_series"} <= set(checks["check"])
 

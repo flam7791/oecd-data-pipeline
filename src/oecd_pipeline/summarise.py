@@ -59,7 +59,7 @@ def summarise_indicator(tidy: pd.DataFrame, indicator: Indicator) -> pd.DataFram
     rows = []
     for code, g in df.groupby("country_code", sort=True):
         g = g.sort_values("_p")
-        by_period = dict(zip(g["_p"], g["value"]))
+        by_period = dict(zip(g["_p"], g["value"], strict=True))
         latest_p = g["_p"].iloc[-1]
         latest = _r(by_period[latest_p])
 
@@ -82,26 +82,28 @@ def summarise_indicator(tidy: pd.DataFrame, indicator: Indicator) -> pd.DataFram
             flags.append("no_year_ago")
 
         first = g.iloc[0]
-        rows.append({
-            "row_id": f"{indicator.id}:{code}",
-            "indicator_id": indicator.id,
-            "indicator_name": indicator.name,
-            "country_code": code,
-            "country": first["country"],
-            "unit": indicator.unit,
-            "latest_period": str(g["period"].iloc[-1]),
-            "latest_value": latest,
-            "previous_period": format_period(prev_p, freq) if prev is not None else "",
-            "previous_value": prev,
-            "change_vs_previous": change_prev,
-            "year_ago_period": format_period(year_p, freq) if year_ago is not None else "",
-            "year_ago_value": year_ago,
-            "change_vs_year_ago": change_year,
-            "flags": ";".join(flags),
-            "flat_threshold": indicator.flat_threshold,
-            "source_url": first["source_url"],
-            "retrieved_at": first["retrieved_at"],
-        })
+        rows.append(
+            {
+                "row_id": f"{indicator.id}:{code}",
+                "indicator_id": indicator.id,
+                "indicator_name": indicator.name,
+                "country_code": code,
+                "country": first["country"],
+                "unit": indicator.unit,
+                "latest_period": str(g["period"].iloc[-1]),
+                "latest_value": latest,
+                "previous_period": format_period(prev_p, freq) if prev is not None else "",
+                "previous_value": prev,
+                "change_vs_previous": change_prev,
+                "year_ago_period": format_period(year_p, freq) if year_ago is not None else "",
+                "year_ago_value": year_ago,
+                "change_vs_year_ago": change_year,
+                "flags": ";".join(flags),
+                "flat_threshold": indicator.flat_threshold,
+                "source_url": first["source_url"],
+                "retrieved_at": first["retrieved_at"],
+            }
+        )
     return pd.DataFrame(rows, columns=SUMMARY_COLUMNS)
 
 

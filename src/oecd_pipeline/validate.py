@@ -110,9 +110,13 @@ def check_row(row: pd.Series, response: pd.Series) -> list[str]:
     if direction not in ALLOWED_DIRECTIONS:
         problems.append(f"direction '{direction}' is not one of {sorted(ALLOWED_DIRECTIONS)}")
     else:
-        expected = expected_direction(_as_float(row["change_vs_previous"]), float(row["flat_threshold"]))
+        expected = expected_direction(
+            _as_float(row["change_vs_previous"]), float(row["flat_threshold"])
+        )
         if direction != expected:
-            problems.append(f"direction '{direction}' does not match the figures (expected '{expected}')")
+            problems.append(
+                f"direction '{direction}' does not match the figures (expected '{expected}')"
+            )
 
     note = response["note"]
     if not note:
@@ -128,7 +132,9 @@ def check_row(row: pd.Series, response: pd.Series) -> list[str]:
     return problems
 
 
-def validate(summary: pd.DataFrame, responses: pd.DataFrame, file_problems: list[str] | None = None) -> ValidationResult:
+def validate(
+    summary: pd.DataFrame, responses: pd.DataFrame, file_problems: list[str] | None = None
+) -> ValidationResult:
     file_problems = list(file_problems or [])
     summary = summary.copy()
     summary["row_id"] = summary["row_id"].astype(str)
@@ -143,15 +149,26 @@ def validate(summary: pd.DataFrame, responses: pd.DataFrame, file_problems: list
         rid = row["row_id"]
         base = row.to_dict()
         if rid not in by_id:
-            review_rows.append({**base, "direction": "", "note": "", "source_file": "",
-                                "problems": "not returned by Copilot"})
+            review_rows.append(
+                {
+                    **base,
+                    "direction": "",
+                    "note": "",
+                    "source_file": "",
+                    "problems": "not returned by Copilot",
+                }
+            )
             continue
         resp = by_id[rid].iloc[-1]
         problems = check_row(row, resp)
         if rid in dup_ids:
             problems.insert(0, f"returned {len(by_id[rid])} times (last one checked)")
-        record = {**base, "direction": resp["direction"], "note": resp["note"],
-                  "source_file": resp["source_file"]}
+        record = {
+            **base,
+            "direction": resp["direction"],
+            "note": resp["note"],
+            "source_file": resp["source_file"],
+        }
         if problems:
             review_rows.append({**record, "problems": "; ".join(problems)})
         else:
@@ -165,7 +182,9 @@ def validate(summary: pd.DataFrame, responses: pd.DataFrame, file_problems: list
         "responses_read": len(responses),
         "accepted": len(final),
         "to_review": len(review),
-        "not_returned": int((review["problems"] == "not returned by Copilot").sum()) if len(review) else 0,
+        "not_returned": int((review["problems"] == "not returned by Copilot").sum())
+        if len(review)
+        else 0,
         "unexpected_row_ids": unexpected,
         "file_problems": file_problems,
     }
@@ -194,7 +213,9 @@ def write_outputs(result: ValidationResult, out_dir: str | Path) -> dict[str, Pa
         f"- Not returned by Copilot: {r['not_returned']}",
     ]
     if r["unexpected_row_ids"]:
-        lines.append(f"- Answers for unknown row_ids (ignored): {', '.join(r['unexpected_row_ids'])}")
+        lines.append(
+            f"- Answers for unknown row_ids (ignored): {', '.join(r['unexpected_row_ids'])}"
+        )
     if r["file_problems"]:
         lines.append("- Response files that could not be used:")
         lines += [f"  - {p}" for p in r["file_problems"]]

@@ -23,9 +23,13 @@ def raw_dir(tmp_path, cfg):
         src = FIXTURES / f"{ind.id}_20251001T080000Z.csv"
         dst = raw / src.name
         shutil.copy(src, dst)
-        dst.with_suffix(".meta.json").write_text(json.dumps({
-            "indicator_id": ind.id,
-            "url": f"https://example.test/{ind.id}",
-            "retrieved_at": "2025-10-01T08:00:00+00:00",
-        }))
+        dst.with_suffix(".meta.json").write_text(
+            json.dumps(
+                {
+                    "indicator_id": ind.id,
+                    "url": f"https://example.test/{ind.id}",
+                    "retrieved_at": "2025-10-01T08:00:00+00:00",
+                }
+            )
+        )
     return raw

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -34,7 +34,7 @@ def test_build_url_inserts_countries(cfg):
 def test_fetch_keeps_raw_bytes_and_provenance(cfg, tmp_path):
     body = b"REF_AREA,TIME_PERIOD,OBS_VALUE\nUSA,2025-01,3.0\n"
     session = FakeSession([FakeResponse(200, body)])
-    when = datetime(2025, 10, 1, 8, 0, tzinfo=timezone.utc)
+    when = datetime(2025, 10, 1, 8, 0, tzinfo=UTC)
     snap = fetch_indicator(cfg, cfg.indicator("cpi_inflation"), tmp_path, session=session, now=when)
     assert snap.csv_path.read_bytes() == body
     meta = json.loads(snap.meta_path.read_text())

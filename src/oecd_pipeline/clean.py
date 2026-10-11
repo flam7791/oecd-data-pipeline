@@ -83,9 +83,13 @@ def clean_sdmx_csv(
     if bad_value.any():
         examples = ", ".join(sorted(set(df.loc[bad_value, "OBS_VALUE"]))[:5]) or "(blank)"
         checks.append(
-            _check(ind, "non_numeric_value", "warning",
-                   f"Rows dropped because OBS_VALUE is blank or not a number (e.g. {examples})",
-                   int(bad_value.sum()))
+            _check(
+                ind,
+                "non_numeric_value",
+                "warning",
+                f"Rows dropped because OBS_VALUE is blank or not a number (e.g. {examples})",
+                int(bad_value.sum()),
+            )
         )
     df = df[~bad_value]
 
@@ -95,8 +99,13 @@ def clean_sdmx_csv(
     if unexpected.any():
         codes = ", ".join(sorted(df.loc[unexpected, "REF_AREA"].unique()))
         checks.append(
-            _check(ind, "unexpected_country", "warning",
-                   f"Rows dropped for areas not in the config: {codes}", int(unexpected.sum()))
+            _check(
+                ind,
+                "unexpected_country",
+                "warning",
+                f"Rows dropped for areas not in the config: {codes}",
+                int(unexpected.sum()),
+            )
         )
     df = df[~unexpected]
 
@@ -105,9 +114,14 @@ def clean_sdmx_csv(
     if (~period_ok).any():
         examples = ", ".join(sorted(df.loc[~period_ok, "TIME_PERIOD"].unique())[:5])
         checks.append(
-            _check(ind, "bad_period", "warning",
-                   f"Rows dropped because the period does not match frequency "
-                   f"{indicator.frequency} (e.g. {examples})", int((~period_ok).sum()))
+            _check(
+                ind,
+                "bad_period",
+                "warning",
+                f"Rows dropped because the period does not match frequency "
+                f"{indicator.frequency} (e.g. {examples})",
+                int((~period_ok).sum()),
+            )
         )
     df = df[period_ok]
 
@@ -119,14 +133,20 @@ def clean_sdmx_csv(
     if dup.any():
         conflicting = (
             df[df.duplicated(["REF_AREA", "TIME_PERIOD"], keep=False)]
-            .groupby(["REF_AREA", "TIME_PERIOD"])["value"].nunique()
+            .groupby(["REF_AREA", "TIME_PERIOD"])["value"]
+            .nunique()
         )
         n_conflict = int((conflicting > 1).sum())
         checks.append(
-            _check(ind, "duplicate_series", "warning",
-                   "More than one row per country and period: the key matched several series. "
-                   f"Kept the first; {n_conflict} country-period pairs had different values. "
-                   "Narrow the key in config/indicators.toml.", int(dup.sum()))
+            _check(
+                ind,
+                "duplicate_series",
+                "warning",
+                "More than one row per country and period: the key matched several series. "
+                f"Kept the first; {n_conflict} country-period pairs had different values. "
+                "Narrow the key in config/indicators.toml.",
+                int(dup.sum()),
+            )
         )
     df = df[~dup]
 
@@ -134,22 +154,29 @@ def clean_sdmx_csv(
     missing_countries = sorted(set(countries) - set(df["REF_AREA"]))
     if missing_countries:
         checks.append(
-            _check(ind, "missing_country", "warning",
-                   f"No usable data for: {', '.join(missing_countries)}", len(missing_countries))
+            _check(
+                ind,
+                "missing_country",
+                "warning",
+                f"No usable data for: {', '.join(missing_countries)}",
+                len(missing_countries),
+            )
         )
 
-    tidy = pd.DataFrame({
-        "indicator_id": ind,
-        "indicator_name": indicator.name,
-        "country_code": df["REF_AREA"],
-        "country": df["REF_AREA"].map(country_name),
-        "period": df["TIME_PERIOD"],
-        "frequency": indicator.frequency,
-        "value": df["value"].astype(float),
-        "unit": indicator.unit,
-        "source_url": meta.get("url", ""),
-        "retrieved_at": meta.get("retrieved_at", ""),
-    })[TIDY_COLUMNS]
+    tidy = pd.DataFrame(
+        {
+            "indicator_id": ind,
+            "indicator_name": indicator.name,
+            "country_code": df["REF_AREA"],
+            "country": df["REF_AREA"].map(country_name),
+            "period": df["TIME_PERIOD"],
+            "frequency": indicator.frequency,
+            "value": df["value"].astype(float),
+            "unit": indicator.unit,
+            "source_url": meta.get("url", ""),
+            "retrieved_at": meta.get("retrieved_at", ""),
+        }
+    )[TIDY_COLUMNS]
     tidy["_sort"] = tidy["period"].map(lambda p: parse_period(p, indicator.frequency))
     tidy = tidy.sort_values(["country_code", "_sort"]).drop(columns="_sort").reset_index(drop=True)
 

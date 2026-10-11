@@ -90,7 +90,8 @@ def load_config(path: str | Path) -> Config:
             )
         if "{countries}" not in item["key"]:
             raise ConfigError(
-                f"Indicator {item['id']!r}: key must contain {{countries}} so the country list applies"
+                f"Indicator {item['id']!r}: key must contain {{countries}} "
+                "so the country list applies"
             )
         indicators.append(
             Indicator(

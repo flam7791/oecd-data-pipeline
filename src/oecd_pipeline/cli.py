@@ -1,13 +1,13 @@
 """Command line: python -m oecd_pipeline <command>
 
-  fetch      download every indicator from the OECD API into data/raw/
-  process    clean the latest downloads, compute figures, write Copilot batches
-  interpret  have a local open-weight model (Ollama, vLLM, any OpenAI-compatible
-             endpoint) write the notes instead of Copilot; same prompt, same checks
-  validate   check the answers (Copilot or local) and write final.csv / review.csv
-  standin    fill the batches with rule-based answers (testing without a model)
-  eval       run the evaluation set through a writer and the validator; report and gate
-  run        fetch + process
+fetch      download every indicator from the OECD API into data/raw/
+process    clean the latest downloads, compute figures, write Copilot batches
+interpret  have a local open-weight model (Ollama, vLLM, any OpenAI-compatible
+           endpoint) write the notes instead of Copilot; same prompt, same checks
+validate   check the answers (Copilot or local) and write final.csv / review.csv
+standin    fill the batches with rule-based answers (testing without a model)
+eval       run the evaluation set through a writer and the validator; report and gate
+run        fetch + process
 """
 
 from __future__ import annotations
@@ -39,7 +39,9 @@ def _paths(args) -> dict[str, Path]:
         "raw": data / "raw",
         "out": data / "out",
         "batches": data / "out" / "batches",
-        "responses": Path(args.responses) if getattr(args, "responses", None) else data / "copilot_responses",
+        "responses": Path(args.responses)
+        if getattr(args, "responses", None)
+        else data / "copilot_responses",
         "standin": data / "standin_responses",
         "local": data / "local_responses",
     }
@@ -99,12 +101,18 @@ def cmd_eval(args) -> int:
             key = re.sub(r"'[^']*'", "'…'", reason.split(":")[0].split("(")[0], count=1).strip()
             reasons[key] = reasons.get(key, 0) + 1
     rate = r["accepted"] / r["rows_expected"] if r["rows_expected"] else 0.0
-    report = {"writer": writer, "rows": r["rows_expected"], "accepted": r["accepted"],
-              "acceptance_rate": round(rate, 3), "to_review": r["to_review"],
-              "review_reasons": reasons}
+    report = {
+        "writer": writer,
+        "rows": r["rows_expected"],
+        "accepted": r["accepted"],
+        "acceptance_rate": round(rate, 3),
+        "to_review": r["to_review"],
+        "review_reasons": reasons,
+    }
     print(f"  writer: {writer}")
-    print(f"  accepted {r['accepted']}/{r['rows_expected']} ({rate:.0%}), "
-          f"to review {r['to_review']}")
+    print(
+        f"  accepted {r['accepted']}/{r['rows_expected']} ({rate:.0%}), to review {r['to_review']}"
+    )
     for reason, n in sorted(reasons.items(), key=lambda x: -x[1]):
         print(f"    {n} x {reason}")
     if args.out:
@@ -144,8 +152,10 @@ def cmd_process(args) -> int:
     prompt = Path(args.config).resolve().parent.parent / "prompts" / "copilot_prompt.md"
     batches = write_batches(summary, p["batches"], config.settings.batch_size, prompt)
     warnings = checks_df[checks_df["severity"] == "warning"] if len(checks_df) else checks_df
-    print(f"  clean.csv: {len(tidy)} rows | summary.csv: {len(summary)} rows | "
-          f"{len(batches)} batch file(s) in {p['batches']}")
+    print(
+        f"  clean.csv: {len(tidy)} rows | summary.csv: {len(summary)} rows | "
+        f"{len(batches)} batch file(s) in {p['batches']}"
+    )
     if len(warnings):
         print(f"  {len(warnings)} source-check warning(s): see {p['out'] / 'source_checks.csv'}")
     return 0
@@ -177,20 +187,34 @@ def cmd_run(args) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog="oecd_pipeline", description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        prog="oecd_pipeline",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--config", default="config/indicators.toml")
     parser.add_argument("--data-dir", default="data")
     sub = parser.add_subparsers(dest="command", required=True)
-    for name, fn in [("fetch", cmd_fetch), ("process", cmd_process), ("standin", cmd_standin),
-                     ("run", cmd_run)]:
+    for name, fn in [
+        ("fetch", cmd_fetch),
+        ("process", cmd_process),
+        ("standin", cmd_standin),
+        ("run", cmd_run),
+    ]:
         sub.add_parser(name).set_defaults(func=fn)
+
     def model_options(parser):
-        parser.add_argument("--base-url", default=os.environ.get(
-            "OECD_PIPELINE_BASE_URL", DEFAULT_BASE_URL), help="OpenAI-compatible endpoint")
-        parser.add_argument("--model", default=os.environ.get(
-            "OECD_PIPELINE_MODEL", DEFAULT_MODEL), help="model name, e.g. an Ollama tag")
+        parser.add_argument(
+            "--base-url",
+            default=os.environ.get("OECD_PIPELINE_BASE_URL", DEFAULT_BASE_URL),
+            help="OpenAI-compatible endpoint",
+        )
+        parser.add_argument(
+            "--model",
+            default=os.environ.get("OECD_PIPELINE_MODEL", DEFAULT_MODEL),
+            help="model name, e.g. an Ollama tag",
+        )
         parser.add_argument("--recordings", help="record replies here, or replay from here")
         parser.add_argument("--offline", action="store_true", help="replay recordings only")
 
@@ -208,7 +232,9 @@ def main(argv=None) -> int:
     e.set_defaults(func=cmd_eval)
 
     v = sub.add_parser("validate")
-    v.add_argument("--responses", help="folder with Copilot answers (default data/copilot_responses)")
+    v.add_argument(
+        "--responses", help="folder with Copilot answers (default data/copilot_responses)"
+    )
     v.set_defaults(func=cmd_validate)
 
     args = parser.parse_args(argv)
