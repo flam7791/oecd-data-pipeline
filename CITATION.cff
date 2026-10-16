@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use or refer to this software, please cite it as below."
+type: software
+title: oecd-data-pipeline
+abstract: "Fetch and clean OECD Data Explorer indicators with Python, add plain-English notes with Microsoft 365 Copilot, and check every note before accepting it."
+authors:
+  - given-names: Flavio
+    family-names: Mericio
+version: 0.2.2
+date-released: "2026-10-16"
+license: MIT
+repository-code: "https://github.com/flam7791/oecd-data-pipeline"
+url: "https://github.com/flam7791/oecd-data-pipeline"
+keywords:
+  - sdmx
+  - data-pipeline
+  - official-statistics
+  - llm-validation

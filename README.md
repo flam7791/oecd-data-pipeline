@@ -13,6 +13,13 @@ let the AI output through unchecked.
 
 > Independent project. Not affiliated with or endorsed by the OECD.
 
+> **Part of a portfolio.** Implements pattern [P3][aief-p3] of the [AI engineering framework][aief],
+> at its *Build* stage. [All repositories][aief-all].
+
+[aief]: https://github.com/flam7791/ai-engineering-framework
+[aief-all]: https://github.com/flam7791
+[aief-p3]: https://github.com/flam7791/ai-engineering-framework/blob/main/docs/patterns.md#p3-code-computes-model-writes-code-checks
+
 ## How it works
 
 ```mermaid

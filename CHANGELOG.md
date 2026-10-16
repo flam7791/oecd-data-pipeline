@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.2.2 (2026-10)
 
 - Lint in CI, with the same ruff rules as the other repositories (`ruff check`, `ruff format
   --check`): imports sorted, unused imports removed, `datetime.UTC`, explicit `zip(strict=...)`,
   long lines wrapped. No behaviour change: tests, the stand-in evaluation and both recorded
   model runs give the same results.
 - `AGENTS.md` (commands, layout, invariants) for coding agents; `CLAUDE.md` imports it.
+- The README opens with the framework pattern this repository implements and a link to the
+  other repositories.
+- `CITATION.cff`, so GitHub offers "Cite this repository".
 
 ## 0.2.1 (2026-10)
 
